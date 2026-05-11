@@ -1,0 +1,13 @@
+stages:
+ - security
+
+semgrep-sast:
+  image: python:3.10
+  stage: security
+  before_script:
+    - pip install semgrep
+  script:
+    - semgrep --config=auto --json --output=semgrep-results.json
+  artifacts:
+    paths:
+      - semgrep-results.json
