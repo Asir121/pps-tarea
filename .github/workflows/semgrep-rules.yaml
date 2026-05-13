@@ -1,7 +1,6 @@
 rules:
-  - id: detect-insecure-sql
-    patterns:
-      - pattern: db.query("SELECT * FROM users WHERE username = " + $X)
-    message: "Posible inyección SQL detectada"
+  - id: detect-insecure-sql-alt
+    pattern: db.query($SQL + $VAR)
+    message: "¡ALERTA! Se detectó una consulta SQL construida mediante concatenación."
     languages: [javascript]
     severity: ERROR
