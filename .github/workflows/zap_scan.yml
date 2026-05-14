@@ -1,47 +1,44 @@
-kname: DAST Scan
+name: DAST Scan
 
 on:
   push:
-  pull_request:
+    branches:
+      - main
 
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del repositorio
+      - name: Clonar repositorio
         uses: actions/checkout@v4
 
-      # Levanta OWASP Juice Shop
-      - name: Ejecutar Juice Shop
-        run: |
-          docker run -d \
-            --name juice-shop \
-            -p 3000:3000 \
-            bkimminich/juice-shop
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      # Esperar a que la app esté disponible
-      - name: Esperar a Juice Shop
-        run: |
-          echo "Esperando aplicación..."
-          for i in {1..30}; do
-            curl -s http://localhost:3000 > /dev/null && break
-            sleep 5
-          done
+      - name: Instalar dependencias
+        run: npm install
 
-      # Instalar OWASP ZAP
+      - name: Iniciar Juice Shop
+        run: |
+          npm start &
+          sleep 60
+
+      - name: Verificar que Juice Shop está activo
+        run: curl http://localhost:3000
+
       - name: Instalar OWASP ZAP
         run: |
           sudo apt-get update
           sudo apt-get install zaproxy -y
 
-      # Ejecutar el escaneo
       - name: Ejecutar escaneo ZAP
         run: |
           zaproxy -cmd -autorun zap_scan.yaml
 
-      # Guardar reporte
-      - name: Subir reporte
+      - name: Guardar reporte
         uses: actions/upload-artifact@v4
         with:
           name: ZAP-Report
