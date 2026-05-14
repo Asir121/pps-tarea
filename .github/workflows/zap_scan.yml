@@ -11,6 +11,10 @@ jobs:
   zap_scan:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: /home/kali/juice-shop
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,7 +30,10 @@ jobs:
       - name: Start Juice Shop
         run: |
           npm start &
-          sleep 120
+          sleep 180
+
+      - name: Verify Juice Shop
+        run: curl http://localhost:3000
 
       - name: ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.12.0
