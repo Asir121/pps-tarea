@@ -1,28 +1,34 @@
 name: DAST Scan
 
 on:
- push:
-  branches:
-    - master
+  push:
+    branches:
+      - master
+
+  workflow_dispatch:
 
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - run: |
+      - name: Start Juice Shop
+        run: |
           npm start &
           sleep 60
 
-      - name: ZAP Scan
+      - name: ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.12.0
         with:
           target: 'http://localhost:3000'
