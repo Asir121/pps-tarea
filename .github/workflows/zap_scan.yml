@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-
   workflow_dispatch:
 
 jobs:
@@ -16,21 +15,28 @@ jobs:
         working-directory: juice-shop
 
     steps:
-      - name: Checkout
+      - name: Checkout del repositorio principal
         uses: actions/checkout@v4
+
+      # --- NUEVO PASO: Clonar Juice Shop directamente en el runner ---
+      - name: Clone Juice Shop
+        run: |
+          cd ..
+          git clone https://github.com/juice-shop/juice-shop.git juice-shop
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
+      # Como pusimos el "working-directory: juice-shop" arriba, correrá aquí dentro
       - name: Install dependencies
         run: npm install
 
       - name: Start Juice Shop
         run: |
           npm start &
-          sleep 180
+          sleep 60 # 180 segundos es demasiado, con 60 suele bastar para que levante
 
       - name: Verify Juice Shop
         run: curl http://localhost:3000
