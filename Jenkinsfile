@@ -8,7 +8,7 @@ pipeline {
         }
         stage('Levantar Juice Shop') {
             steps {
-		dir('/home/kali/juice-shop') {
+		dir('/opt/juice-shop') {
 	            // Usamos sudo para limpiar procesos y arrancar
 	            sh 'sudo pkill -f "node" || true' 
 	            // Arrancamos con sudo para evitar líos de permisos en logs
