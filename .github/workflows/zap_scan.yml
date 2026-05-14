@@ -10,36 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar repositorio
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Instalar Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Instalar dependencias
-        run: npm install
+      - run: npm install
 
-      - name: Iniciar Juice Shop
-        run: |
+      - run: |
           npm start &
           sleep 60
 
-      - name: Verificar que Juice Shop está activo
-        run: curl http://localhost:3000
-
-      - name: Instalar OWASP ZAP
-        run: |
-          sudo apt-get update
-          sudo apt-get install zaproxy -y
-
-      - name: Ejecutar escaneo ZAP
-        run: |
-          zaproxy -cmd -autorun zap_scan.yaml
-
-      - name: Guardar reporte
-        uses: actions/upload-artifact@v4
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
-          name: ZAP-Report
-          path: zap_report.html
+          target: 'http://localhost:3000'
