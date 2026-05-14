@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: /home/kali/juice-shop
+        working-directory: juice-shop
 
     steps:
       - name: Checkout
