@@ -9,12 +9,16 @@ on:
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
+    
+    # IMPORTANTE: Permisos para que ZAP pueda crear el Issue
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - name: Checkout del repositorio principal
         uses: actions/checkout@v4
 
-      # Clonamos directamente en la raíz del runner, sin problemas de carpetas inexistentes
       - name: Clone Juice Shop
         run: git clone https://github.com/juice-shop/juice-shop.git juice-shop
 
@@ -23,7 +27,6 @@ jobs:
         with:
           node-version: '22'
 
-      # Ahora aplicamos el working-directory paso por paso, solo donde se necesita
       - name: Install dependencies
         working-directory: juice-shop
         run: npm install
@@ -40,5 +43,8 @@ jobs:
       - name: ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.12.0
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:3000'
-          create_issue: false
+          # Parámetros corregidos según el log de error
+          allow_issue_writing: true
+          issue_title: 'Security Scan Report'
