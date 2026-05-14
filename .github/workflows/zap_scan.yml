@@ -1,7 +1,9 @@
 name: DAST Scan
 
 on:
-  push:
+ push:
+  branches:
+    - master
 
 jobs:
   zap_scan:
