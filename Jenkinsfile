@@ -3,30 +3,36 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm // Descarga el Jenkinsfile y zap_scan.yaml desde GitHub
+                checkout scm 
             }
         }
         stage('Levantar Juice Shop') {
             steps {
-		dir('/opt/juice-shop') {
-	            // Usamos sudo para limpiar procesos y arrancar
-	            sh 'sudo pkill -f "node" || true' 
-	            // Arrancamos con sudo para evitar líos de permisos en logs
-	            sh 'sudo npm start > jenkins_juice.log 2>&1 &'
-	            sh 'sleep 40'
-		}
-	    }
-	}        
-	stage('Ejecutar DAST (ZAP)') {
+                dir('/opt/juice-shop') {
+                    // Limpiamos procesos previos usando sudo
+                    sh 'sudo pkill -f "node" || true'
+                    // Iniciamos la app. Redirigimos la salida a un log en /tmp para evitar líos de permisos
+                    sh 'sudo npm start > /tmp/jenkins_juice.log 2>&1 &'
+                    echo 'Esperando a que Juice Shop arranque...'
+                    sh 'sleep 60' 
+                }
+            }
+        }
+        stage('Ejecutar DAST (ZAP)') {
             steps {
-                // ZAP usará el archivo que acaba de bajar del Checkout
-		sh 'zaproxy -cmd -autorun zap_scan.yaml'            }
+                // Ejecutamos el escaneo usando el archivo zap_scan.yaml del repo
+                sh 'zaproxy -cmd -autorun zap_scan.yaml'
+            }
         }
     }
     post {
         always {
-            archiveArtifacts artifacts: 'zap_report.html', fingerprint: true
-            sh 'pkill -f "node" || true' // Limpieza
+            // Guardamos el reporte generado
+            archiveArtifacts artifacts: 'zap_report.html', fingerprint: true, allowEmptyArchive: true
+            
+            echo 'Limpiando entorno...'
+            // Usamos sudo aquí también para que Jenkins tenga permiso de matar el proceso
+            sh 'sudo pkill -f "node" || true'
         }
     }
 }
