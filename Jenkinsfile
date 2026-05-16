@@ -6,34 +6,37 @@ pipeline {
                 checkout scm  
             }
         }
-        stage('Levantar Juice Shop') {
+        stage('Preparar y Levantar Juice Shop') {
             steps {
-                // AQUÍ: Cambiamos la ruta a la tuya real
-                dir('/home/kali/juice-shop') {
-                    // Matamos procesos previos de Node para que no choquen los puertos
+                // Forzamos a que todo corra en el Workspace limpio de Jenkins
+                script {
+                    // Copiamos el Juice Shop local entero hacia el espacio seguro de Jenkins
+                    sh 'cp -r /home/kali/juice-shop/. .'
+                    
+                    // Matamos cualquier proceso Node previo para liberar el puerto 3000
                     sh 'sudo pkill -f "node" || true'
                     
-                    // Levantamos la aplicación desde tu carpeta
-                    sh 'node app.js > /tmp/jenkins_juice.log 2>&1 &'
+                    // Levantamos la aplicación desde el espacio de Jenkins
+                    sh 'node app.js > jenkins_juice.log 2>&1 &'
                     
-                    echo 'Esperando a que Juice Shop arranque...'
-                    sh 'sleep 30' 
+                    echo 'Esperando 30 segundos a que Juice Shop arranque...'
+                    sh 'sleep 30'
                 }
             }
         }
         stage('Ejecutar DAST (ZAP)') {
             steps {
-                // Ejecutamos el escaneo usando el archivo zap_scan.yaml del repo
+                // Ejecutamos el escaneo usando el archivo zap_scan.yaml que bajó de tu GitHub
                 sh 'zaproxy -cmd -autorun zap_scan.yaml'
             }
         }
     }
     post {
         always {
-            // Guardamos el reporte generado
+            // Guardamos el reporte generado por ZAP
             archiveArtifacts artifacts: 'zap_report.html', fingerprint: true, allowEmptyArchive: true
             
-            echo 'Limpiando entorno...'
+            echo 'Limpiando entorno y apagando Juice Shop...'
             sh 'sudo pkill -f "node" || true'
         }
     }
