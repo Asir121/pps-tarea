@@ -8,7 +8,6 @@ pipeline {
         }
         stage('Preparar y Levantar Juice Shop') {
             steps {
-                // Forzamos a que todo corra en el Workspace limpio de Jenkins
                 script {
                     // Copiamos el Juice Shop local entero hacia el espacio seguro de Jenkins
                     sh 'cp -r /home/kali/juice-shop/. .'
@@ -26,8 +25,8 @@ pipeline {
         }
         stage('Ejecutar DAST (ZAP)') {
             steps {
-                // Ejecutamos el escaneo usando el archivo zap_scan.yaml que bajó de tu GitHub
-                sh 'zaproxy -cmd -autorun zap_scan.yaml'
+                // AQUÍ CAMBIAMOS EL PUERTO A 8081 PARA EVITAR CHOQUE CON JENKINS
+                sh 'zaproxy -cmd -autorun zap_scan.yaml -port 8081'
             }
         }
     }
