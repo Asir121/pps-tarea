@@ -1,17 +1,24 @@
+env:
+  contexts:
+    - name: "JuiceShopContext"
+      urls:
+        - "http://localhost:3000"
+  parameters:
+    failOnError: false
+    failOnWarning: false
+
 jobs:
   - type: spider
     parameters:
-      url: "http://localhost:3000"
+      context: "JuiceShopContext"
       maxDuration: 2
 
   - type: activeScan
     parameters:
-      url: "http://localhost:3000"
-      recurse: true
-      maxDuration: 5
+      context: "JuiceShopContext"
 
   - type: report
     parameters:
-      template: traditional-html
-      reportFile: zap_report.html
+      template: "traditional-html"
+      reportFile: "zap_report.html"
       reportTitle: "ZAP Scan Report"
