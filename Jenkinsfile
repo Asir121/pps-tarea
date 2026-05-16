@@ -3,18 +3,21 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm 
+                checkout scm  
             }
         }
         stage('Levantar Juice Shop') {
             steps {
-                dir('/opt/juice-shop') {
-                    // Limpiamos procesos previos usando sudo
+                // AQUÍ: Cambiamos la ruta a la tuya real
+                dir('/home/kali/juici-shop') {
+                    // Matamos procesos previos de Node para que no choquen los puertos
                     sh 'sudo pkill -f "node" || true'
-                    // Iniciamos la app. Redirigimos la salida a un log en /tmp para evitar líos de permisos
-                    sh 'sudo npm start > /tmp/jenkins_juice.log 2>&1 &'
+                    
+                    // Levantamos la aplicación desde tu carpeta
+                    sh 'node app.js > /tmp/jenkins_juice.log 2>&1 &'
+                    
                     echo 'Esperando a que Juice Shop arranque...'
-                    sh 'sleep 60' 
+                    sh 'sleep 30' 
                 }
             }
         }
@@ -31,7 +34,6 @@ pipeline {
             archiveArtifacts artifacts: 'zap_report.html', fingerprint: true, allowEmptyArchive: true
             
             echo 'Limpiando entorno...'
-            // Usamos sudo aquí también para que Jenkins tenga permiso de matar el proceso
             sh 'sudo pkill -f "node" || true'
         }
     }
