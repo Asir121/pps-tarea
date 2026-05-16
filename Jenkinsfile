@@ -9,7 +9,7 @@ pipeline {
         stage('Levantar Juice Shop') {
             steps {
                 // AQUÍ: Cambiamos la ruta a la tuya real
-                dir('/home/kali/juici-shop') {
+                dir('/home/kali/juice-shop') {
                     // Matamos procesos previos de Node para que no choquen los puertos
                     sh 'sudo pkill -f "node" || true'
                     
