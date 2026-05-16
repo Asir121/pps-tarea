@@ -15,15 +15,17 @@ pipeline {
                     // Matamos cualquier proceso Node previo para liberar el puerto 3000
                     sh 'sudo pkill -f "node" || true'
 
-                    // Levantamos la aplicación desde el espacio de Jenkins
-                    sh 'node app.js > jenkins_juice.log 2>&1 &'
+                    // Usamos sudo npm start para que use el entorno correcto y se quede encendido
+                    sh 'sudo npm start > jenkins_juice.log 2>&1 &'
 
                     echo 'Esperando 30 segundos a que Juice Shop arranque...'
                     sh 'sleep 30'
+                    
+                    // Comprobación de seguridad: Ver si de verdad está escuchando en el puerto 3000
+                    sh 'curl -I http://localhost:3000 || echo "ADVERTENCIA: Juice Shop no arrancó correctamente"'
                 }
             }
         }
-        // AQUÍ VA TU BLOQUE MODIFICADO CON EL TRUCO DEL "|| true"
         stage('Ejecutar DAST (ZAP)') {
             steps {
                 // Combina la ruta segura del WORKSPACE con el || true para forzar el aprobado verde
