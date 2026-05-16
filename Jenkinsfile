@@ -25,8 +25,8 @@ pipeline {
         }
         stage('Ejecutar DAST (ZAP)') {
             steps {
-                // AQUÍ CAMBIAMOS EL PUERTO A 8081 PARA EVITAR CHOQUE CON JENKINS
-                sh 'zaproxy -cmd -autorun zap_scan.yaml -port 8081'
+                // LE AÑADIMOS ${WORKSPACE}/ PARA DECIRLE EXACTAMENTE DÓNDE ESTÁ EL ARCHIVO
+                sh 'zaproxy -cmd -autorun ${WORKSPACE}/zap_scan.yaml -port 8081'
             }
         }
     }
